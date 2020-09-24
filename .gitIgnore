@@ -1,0 +1,16 @@
+*/Listings
+*/Objects/
+
+Listings
+Objects
+build
+
+*.pdsbak
+*.Sentinel
+*.workspace
+*.A51
+*.pdsprj
+*.uvopt
+*.uvgui.*
+*.hex
+
