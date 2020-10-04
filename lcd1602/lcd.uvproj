@@ -13,14 +13,14 @@
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
-          <Device>AT89C52</Device>
+          <Device>AT89C55</Device>
           <Vendor>Microchip</Vendor>
-          <Cpu>IRAM(0-0xFF) IROM(0-0x1FFF) CLOCK(24000000)</Cpu>
+          <Cpu>IRAM(0 - 0xFF) IROM(0 - 0x4FFF) CLOCK(24000000)</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile>"LIB\STARTUP.A51" ("Standard 8051 Startup Code")</StartupFile>
           <FlashDriverDll></FlashDriverDll>
-          <DeviceId>2980</DeviceId>
-          <RegisterFile>REGX52.H</RegisterFile>
+          <DeviceId>2981</DeviceId>
+          <RegisterFile>REGX55.H</RegisterFile>
           <MemoryEnv></MemoryEnv>
           <Cmp></Cmp>
           <Asm></Asm>
@@ -46,7 +46,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\Objects\</OutputDirectory>
-          <OutputName>keyBoard</OutputName>
+          <OutputName>lcd</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -233,7 +233,7 @@
               <RCB>
                 <Type>0</Type>
                 <StartAddress>0x0</StartAddress>
-                <Size>0x10000</Size>
+                <Size>0xffff</Size>
               </RCB>
               <RXB>
                 <Type>0</Type>
@@ -273,7 +273,7 @@
               <IRO>
                 <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
-                <Size>0x2000</Size>
+                <Size>0x5000</Size>
               </IRO>
               <IRA>
                 <Type>0</Type>
@@ -382,9 +382,9 @@
               <FilePath>.\STARTUP.A51</FilePath>
             </File>
             <File>
-              <FileName>keys.c</FileName>
+              <FileName>testLCD.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\keys.c</FilePath>
+              <FilePath>.\testLCD.c</FilePath>
             </File>
           </Files>
         </Group>
