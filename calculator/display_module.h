@@ -41,9 +41,19 @@ sbit RS = P2 ^ 0;
 sbit RW = P2 ^ 1;
 sbit EN = P2 ^ 2;
 
+extern uchar now_row;		// 当前光标行
+extern uchar now_col;		// 当前光标列
+extern uchar head_row;		// 当前屏幕上字符最大达到的行
+extern uchar head_col;		// 当前屏幕上字符最大达到的列
+
 void Init();
+void doPop();				// 行尾删除
+void moveLeft();			// 光标左移
+void moveRight();			// 光标右移
+
+void writeCursor(uchar _data);	// 光标边界检测 + 输入
 void write(uchar _dat, bit data_flag);		// 简单写入
-void writeChar(uchar _dat, uint px, uint py);			// 写入到特定位置
 void writeLine(uchar ptr[20], uint line, bit clear, uchar align);		// 写入列
+void setCursor(uchar row, uchar col);
 uchar checkBusy();
 #endif 	//__DISPLAY_MODULE_H__

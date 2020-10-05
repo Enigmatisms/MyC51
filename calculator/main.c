@@ -1,17 +1,21 @@
 #include "display_module.h"
-
+#include "keyboard_module.h"
 
 
 void main(){
-	uint i, start_row;
+	uint i, start_row, pos, old_pos = 24;
 	Init();
 	start_row = 0;
 	while(1){
-		for (i = start_row; i < start_row + 4; i++){
-			writeLine(sentences[i % 8], i % 4, 1, RIGHT);
-		}	
-		start_row ++;
-		start_row %= 8;
-		delayMs(1000);
+		pos = sweepingScan();
+		if (pos == old_pos){
+			continue;
+		}
+		if (pos  < 24){
+			keyboardEvent(pos);
+		}
+		delayMs(10);
+		old_pos = pos;
+		
 	}
 }
