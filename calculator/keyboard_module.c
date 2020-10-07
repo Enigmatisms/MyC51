@@ -51,16 +51,7 @@ void keyboardEvent(uint pos){
 	if (ch > 10){
 		writeCursor(ch);
 	}
-	else if (ch == 5){
-		moveLeft();
-	}
-	else if (ch == 6){
-		moveRight();
-	}
-	else if (ch == 0){
-		doPop();
-	}
 	else{
-		;
+		functions[ch]();
 	}
 }

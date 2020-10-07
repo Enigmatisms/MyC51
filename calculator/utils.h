@@ -14,7 +14,9 @@
 // ÐÐÆ«ÒÆ
 extern uchar code line_offset[4];
 
-extern uchar code sentences[8][20];
+extern uchar code menuItems[3][20];
+
+extern uchar code settingItems[3][20];
 
 int strlen(uchar ptr[20]);
 

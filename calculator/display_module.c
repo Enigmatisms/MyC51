@@ -3,6 +3,13 @@ uchar now_row = 1;
 uchar now_col = 0;
 uchar head_row = 1;
 uchar head_col = 0;
+uchar _mode = 0;
+
+func functions[7] = {
+	&doPop, &allClear, &settings, &mainMenu, &yieldResult, &moveLeft, &moveRight
+};
+
+uchar sets[3] = {0, 0, 0};			// 设置
 
 void Init(){
 	write(INITIAL, 0);
@@ -118,7 +125,11 @@ void setCursor(uchar row, uchar col){
 	write(DISPLAY_START + line_offset[row] + col, 0);
 }
 
+/// 编号0 @brief删除行末字符
 void doPop(){
+	if (_mode){
+		return;
+	}
 	if ((now_row != head_row) || (now_col != head_col)){
 		now_row = head_row;
 		now_col = head_col;
@@ -144,34 +155,134 @@ void doPop(){
 	}
 }
 
-// 移动光标
-void moveLeft(){
-	if (now_col > 0){
-		now_col --;
-		write(CURSOR_LEFT, 0);
+/// 编号1 @brief AC @todo 此后需要增加：清除栈内所有内容
+void allClear(){
+	write(CLA, 0);
+	head_row = 1;
+	head_col = 0;
+	now_row = head_row;
+	now_col = head_col;
+	write(SHOW_CURSOR, 0);
+	setCursor(1, 0);
+	_mode = CALC;
+}
+
+
+/// 编号2 @brief 进入设置模式
+void settings(){
+	allClear();
+	write(NO_CURSOR, 0);		// 关闭光标
+	writeLine("***** Settings *****", 0, 0, LEFT);
+	_mode = SETS;
+	drawSettings();
+}
+
+/// 编号3 @brief 进入主菜单
+void mainMenu(){
+	allClear();
+	write(NO_CURSOR, 0);		// 关闭光标
+	writeLine("******* Menu *******", 0, 0, LEFT);
+	_mode = MENU;
+	drawMainMenu();
+}
+
+/// 编号4 @brief 等号操作 （在设置以及主菜单中表示确定或者更改）
+void yieldResult(){
+	if (_mode == 0){
+		setCursor(head_row, head_col);
+		writeLine("<<<Test Results>>>", 3, 1, CENTRAL);
+	}
+	else if(_mode < 4){
+		sets[_mode - 1] = 1 - sets[_mode - 1];
+		drawSettings();
 	}
 	else {
-		if (now_row > 1){
-			now_row = 1;
-			now_col = 19;
-			setCursor(1, 19);
+		;
+	}
+}
+
+/// 编号5 @brief 左向移动光标 （在设置以及主菜单中表示上移）
+void moveLeft(){
+	if (_mode == 0){
+		if (now_col > 0){
+			now_col --;
+			write(CURSOR_LEFT, 0);
+		}
+		else {
+			if (now_row > 1){
+				now_row = 1;
+				now_col = 19;
+				setCursor(1, 19);
+			}
+		}
+	}
+	else if (_mode < 4){
+		_mode = (_mode + 1) % 3 + 1;
+		drawSettings();
+	}
+	else {
+		_mode = (_mode + 1) % 3 + 4;
+		drawMainMenu();
+	}
+}
+
+/// 编号6 @brief 右向移动光标 （在设置以及主菜单中表示下移）
+void moveRight(){
+	if (_mode == 0){
+		if (now_row == head_row && now_col >= head_col){			// 不可以右移
+			return;
+		}
+		if (now_col < 19){
+			now_col ++;
+			write(CURSOR_RIGHT, 0);
+		}
+		else {
+			if (now_row < 2){
+				now_row = 2;
+				now_col = 0;
+				setCursor(2, 0);
+			}
+		}
+	}
+	else if (_mode < 4){
+		_mode = (_mode) % 3 + 1;
+		drawSettings();
+	}
+	else {
+		_mode = (_mode) % 3 + 4;
+		drawMainMenu();
+	}
+}
+
+void drawMainMenu(){
+	uint i;
+	for (i = 0; i < 3; i++){
+		writeLine(menuItems[i], i + 1, 1, LEFT);
+		if (i + 4 == _mode){
+			writeLine("<<<", i + 1, 0, RIGHT);
 		}
 	}
 }
 
-void moveRight(){
-	if (now_row == head_row && now_col >= head_col){			// 不可以右移
-		return;
-	}
-	if (now_col < 19){
-		now_col ++;
-		write(CURSOR_RIGHT, 0);
-	}
-	else {
-		if (now_row < 2){
-			now_row = 2;
-			now_col = 0;
-			setCursor(2, 0);
+void drawSettings(){
+	uint i;
+	for (i = 0; i < 3; i++){
+		writeLine(settingItems[i], i + 1, 1, LEFT);
+		if (i + 1 == _mode){
+			if (sets[i] == 0){
+				writeLine(" OFF <<<", i + 1, 0, RIGHT);
+			}
+			else {
+				writeLine(" ON <<<", i + 1, 0, RIGHT);
+			}
+		}
+		else{
+			if (sets[i] == 0){
+				writeLine(" OFF ", i + 1, 0, RIGHT);
+			}
+			else {
+				writeLine(" ON ", i + 1, 0, RIGHT);
+			}
 		}
 	}
 }

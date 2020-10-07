@@ -8,7 +8,7 @@ void main(){
 	start_row = 0;
 	while(1){
 		pos = sweepingScan();
-		if (pos == old_pos){
+		if (pos != 24 && pos == old_pos){
 			continue;
 		}
 		if (pos  < 24){

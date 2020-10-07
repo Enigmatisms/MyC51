@@ -4,15 +4,16 @@ uchar code line_offset[4] = {
 	0x00, 0x40, 0x14, 0x54
 };
 
-uchar code sentences[8][20] = {
-	"Testing LCD",
-	"Hello world",
-	"1234567890ABCDEDFXYZ",
-	"6/2 = 3,1 + 3*2 = 7",
-	"Rolling...",
-	"Sentinel's work",
-	"Let's do this!",
-	"Where are you?"
+uchar code menuItems[3][20] = {
+	"# Calculation",
+	"# Sensors",
+	"# Alarm Setting"
+};
+
+uchar code settingItems[3][20] = {
+	"LED Light:",
+	"Press sound:",
+	"FIX output:"
 };
 
 int strlen(uchar ptr[20]){

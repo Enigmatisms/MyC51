@@ -36,18 +36,33 @@
 #define CENTRAL 0
 #define LEFT	1
 #define RIGHT	2
+#define CALC	0			// 系统模式
+#define SETS	1			// 1为 指示灯 2为按键音 3为科学计数法显示
+#define MENU	4			// 4为计算模式	5为温度显示  6为闹钟设置
 
 sbit RS = P2 ^ 0;
 sbit RW = P2 ^ 1;
 sbit EN = P2 ^ 2;
 
+typedef void(*func)();
+extern func functions[7];
 extern uchar now_row;		// 当前光标行
 extern uchar now_col;		// 当前光标列
 extern uchar head_row;		// 当前屏幕上字符最大达到的行
 extern uchar head_col;		// 当前屏幕上字符最大达到的列
+extern uchar _mode;			/// 当前模式 @todo 普通计算模式，温度/电量显示模式，闹钟设置（计时器中断打开/关闭？）
+extern uchar sets[3];			// 设置
 
-void Init();
+/// 设置中包括：是否打开按键与闹钟指示灯？是否静音？是否开启科学计数法显示？（最后一个最难）
+
+void Init();				// 初始化
+
+/// ================== 七个按键函数 =====================
 void doPop();				// 行尾删除
+void allClear();			// 清空
+void settings();			// 设置
+void mainMenu();			// 主菜单
+void yieldResult();			// 等号操作
 void moveLeft();			// 光标左移
 void moveRight();			// 光标右移
 
@@ -56,4 +71,7 @@ void write(uchar _dat, bit data_flag);		// 简单写入
 void writeLine(uchar ptr[20], uint line, bit clear, uchar align);		// 写入列
 void setCursor(uchar row, uchar col);
 uchar checkBusy();
+
+void drawSettings();
+void drawMainMenu();
 #endif 	//__DISPLAY_MODULE_H__
