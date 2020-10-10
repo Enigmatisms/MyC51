@@ -3,15 +3,18 @@
 
 
 void main(){
-	uint i, start_row, pos, old_pos = 24;
+	uint pos, old_pos = 24;
 	Init();
-	start_row = 0;
 	while(1){
 		pos = sweepingScan();
 		if (pos != 24 && pos == old_pos){
 			continue;
 		}
 		if (pos  < 24){
+			if (tobe_reset == 1 && pos != 5){		// 如果本来就按下AC键就没必要再清除一次
+				allClear();
+				tobe_reset = 0;
+			}
 			keyboardEvent(pos);
 		}
 		delayMs(10);

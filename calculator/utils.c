@@ -11,12 +11,18 @@ uchar code menuItems[3][20] = {
 };
 
 uchar code settingItems[3][20] = {
-	"LED Light:",
-	"Press sound:",
-	"FIX output:"
+	"45s shutdown:",				// 45 秒自动关机
+	"Press sound:",					// 按键音
+	"LED Light:"					// 键盘灯
 };
 
-int strlen(uchar ptr[20]){
+uchar code errors[3][20] = {
+	"Syntax Error",
+	"Math Error",
+	"Stack Error"
+};
+
+int strlen(uchar* ptr){
 	int i = 0;
 	while(i < 20){
 		if (ptr[i] < 0x0a){

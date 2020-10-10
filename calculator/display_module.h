@@ -9,8 +9,8 @@
 #define __DISPLAY_MODULE_H__
 
 #include <reg52.h>
-#include <intrins.h>
 #include "utils.h"
+#include "easy_stack.h"
 
 #define DELAY 1
 
@@ -44,14 +44,16 @@ sbit RS = P2 ^ 0;
 sbit RW = P2 ^ 1;
 sbit EN = P2 ^ 2;
 
-typedef void(*func)();
-extern func functions[7];
 extern uchar now_row;		// 当前光标行
 extern uchar now_col;		// 当前光标列
 extern uchar head_row;		// 当前屏幕上字符最大达到的行
 extern uchar head_col;		// 当前屏幕上字符最大达到的列
 extern uchar _mode;			/// 当前模式 @todo 普通计算模式，温度/电量显示模式，闹钟设置（计时器中断打开/关闭？）
 extern uchar sets[3];			// 设置
+extern uchar buffer[24];	// 输入缓冲区
+extern uchar alarm_time;	// 闹钟时间设置（second）
+extern bit use_cel;			// 使用摄氏度显示
+extern bit tobe_reset;		// 在等号按下后，重新输入需要清零
 
 /// 设置中包括：是否打开按键与闹钟指示灯？是否静音？是否开启科学计数法显示？（最后一个最难）
 
@@ -68,10 +70,11 @@ void moveRight();			// 光标右移
 
 void writeCursor(uchar _data);	// 光标边界检测 + 输入
 void write(uchar _dat, bit data_flag);		// 简单写入
-void writeLine(uchar ptr[20], uint line, bit clear, uchar align);		// 写入列
+void writeLine(uchar* ptr, uint line, bit clear, uchar align);		// 写入列
 void setCursor(uchar row, uchar col);
 uchar checkBusy();
 
 void drawSettings();
 void drawMainMenu();
+void drawError(uchar err);
 #endif 	//__DISPLAY_MODULE_H__

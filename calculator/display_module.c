@@ -5,9 +5,10 @@ uchar head_row = 1;
 uchar head_col = 0;
 uchar _mode = 0;
 
-func functions[7] = {
-	&doPop, &allClear, &settings, &mainMenu, &yieldResult, &moveLeft, &moveRight
-};
+bit tobe_reset = 0;
+uchar buffer[24];
+uchar alarm_time = 60;		// 闹钟时间设置（second）
+bit use_cel = 1;			// 使用摄氏度显示
 
 uchar sets[3] = {0, 0, 0};			// 设置
 
@@ -17,13 +18,7 @@ void Init(){
 	write(SHOW_CURSOR, 0);
 	write(CURSOR_FORWARD, 0);
 	write(CURSOR_BLINK, 0);
-	writeLine("1234567890ABCDEF0000", 1, 1, LEFT);
-	writeLine("1234567890ABCDEF000", 2, 1, LEFT);
-	now_row = 2;
-	now_col = 19;
-	head_row = 2;
-	head_col = 19;
-	setCursor(2, (uchar)19);
+	allClear();
 }
 
 uchar busyCheck()   //忙检查
@@ -56,11 +51,13 @@ void writeCursor(uchar _data){
 	if ((now_row != head_row) || (now_col != head_col)){		// 存在光标不与最大位置对齐时，只改变当前位置
 		if (now_col < 19){
 			write(_data, 1);
+			buffer[(now_row - 1) * 20 + now_col] = _data;
 			now_col ++;
 		}
 		else{
 			if (now_row == 1){
 				write(_data, 1);
+				buffer[(now_row - 1) * 20 + now_col] = _data;
 				setCursor(2, 0);		// 光标位置改变到下一行
 				now_col = 0;
 				now_row = 2;
@@ -70,12 +67,15 @@ void writeCursor(uchar _data){
 	else{								// 光标未对齐时只更改当前位置上的字符，不会影响最大长
 		if (head_col < 19){
 			write(_data, 1);
+			buffer[(head_row - 1) * 20 + head_col] = _data;
+			buffer[(head_row - 1) * 20 + head_col] = _data;
 			head_col ++;
 			now_col = head_col;
 		}
 		else{
 			if (head_row == 1){
 				write(_data, 1);
+				buffer[(head_row - 1) * 20 + head_col] = _data;
 				setCursor(2, 0);		// 光标位置改变到下一行
 				head_col = 0;
 				head_row = 2;
@@ -86,7 +86,7 @@ void writeCursor(uchar _data){
 	}
 }
 
-void writeLine(uchar ptr[20], uint line, bit clear, uchar align){
+void writeLine(uchar* ptr, uint line, bit clear, uchar align){
 	uint index;
 	uchar start_pos = 0;
 	switch(align){
@@ -141,6 +141,7 @@ void doPop(){
 		write(CURSOR_LEFT, 0);		// 光标移动到末尾字符上	
 		write(' ', 1);				// 清除
 		write(CURSOR_LEFT, 0);		// 由于光标一直采取右移的方式，写入以后会右移一位，则需要左移
+		buffer[(head_row - 1) * 20 + head_col] = 0;
 	}
 	else{
 		if (head_row > 1){
@@ -151,12 +152,14 @@ void doPop(){
 			setCursor(1, 19);
 			write(' ', 1);
 			setCursor(1, 19);		// 跨行删除时，由第二行到第一行先退回光标，再删除，再移动光标到第二行行首
+			buffer[(head_row - 1) * 20 + head_col] = 0;
 		}
 	}
 }
 
 /// 编号1 @brief AC @todo 此后需要增加：清除栈内所有内容
 void allClear(){
+	int i;
 	write(CLA, 0);
 	head_row = 1;
 	head_col = 0;
@@ -165,6 +168,9 @@ void allClear(){
 	write(SHOW_CURSOR, 0);
 	setCursor(1, 0);
 	_mode = CALC;
+	for (i = 0; i < 24; i++){
+		*(buffer + i) = 0;
+	}
 }
 
 
@@ -188,16 +194,39 @@ void mainMenu(){
 
 /// 编号4 @brief 等号操作 （在设置以及主菜单中表示确定或者更改）
 void yieldResult(){
+	uchar result, err, buf[3];
 	if (_mode == 0){
 		setCursor(head_row, head_col);
-		writeLine("<<<Test Results>>>", 3, 1, CENTRAL);
+		if ((head_row - 1) * 20 + head_col > 23){
+			drawError(0x02);			// 栈溢出
+		}
+		err = calculate(buffer, &result);
+		if (err != 0x03){
+			drawError(err);
+		}
+		else{
+			buf[0] = (uchar)(result / 100) + 48;
+			buf[1] = (uchar)((result - (buf[0] - 48) * 100) / 10) + 48;
+			buf[2] = result % 10 + 48;
+			writeLine(buf, 3, 1, RIGHT);
+			tobe_reset = 1;
+		}
 	}
 	else if(_mode < 4){
 		sets[_mode - 1] = 1 - sets[_mode - 1];
 		drawSettings();
 	}
-	else {
-		;
+	else if (_mode < 7){
+		switch(_mode){
+			case 4: _mode = 0; break;
+			case 5: _mode = 7; break;								///@todo 
+			case 6: _mode = 8; break;								///@todo 
+		}
+		allClear();
+	}
+	else if (_mode == 8){
+		/// @todo 定时器重新设定
+		/// @todo 闹钟秒数小于等于5表示不设置闹钟
 	}
 }
 
@@ -220,9 +249,17 @@ void moveLeft(){
 		_mode = (_mode + 1) % 3 + 1;
 		drawSettings();
 	}
-	else {
+	else if (_mode < 7){
 		_mode = (_mode + 1) % 3 + 4;
 		drawMainMenu();
+	}
+	else if (_mode == 7){						// 7 为传感器温度显示	8 为闹钟调整
+		use_cel = !use_cel;			// 切换摄氏度华氏度转换
+	}
+	else{
+		if (alarm_time < 255){
+			alarm_time ++;
+		}
 	}
 }
 
@@ -248,9 +285,17 @@ void moveRight(){
 		_mode = (_mode) % 3 + 1;
 		drawSettings();
 	}
-	else {
+	else if (_mode < 7){
 		_mode = (_mode) % 3 + 4;
 		drawMainMenu();
+	}
+	else if (_mode == 7){
+		use_cel = !use_cel;
+	}
+	else {
+		if (alarm_time > 5){
+			alarm_time --;
+		}
 	}
 }
 
@@ -285,4 +330,13 @@ void drawSettings(){
 			}
 		}
 	}
+}
+
+void drawError(uchar err){
+	allClear();
+	writeLine("********************", 0, 0, LEFT);
+	writeLine(errors[err], 1, 1, CENTRAL);
+	writeLine("********************", 2, 0, LEFT);
+	delayMs(1500);
+	allClear();
 }

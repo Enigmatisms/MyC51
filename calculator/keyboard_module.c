@@ -52,6 +52,14 @@ void keyboardEvent(uint pos){
 		writeCursor(ch);
 	}
 	else{
-		functions[ch]();
+		switch(ch){
+			case 0: doPop(); break;
+			case 1: allClear(); break;
+			case 2: settings(); break;
+			case 3: mainMenu(); break;
+			case 4: yieldResult(); break;
+			case 5: moveLeft(); break;
+			case 6: moveRight(); break;
+		}
 	}
 }

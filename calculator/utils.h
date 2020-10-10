@@ -7,7 +7,6 @@
 #define __UTILS_H__
 
 #include <reg52.h>
-#include <intrins.h>
 #define uint unsigned int
 #define uchar unsigned char
 	
@@ -18,7 +17,9 @@ extern uchar code menuItems[3][20];
 
 extern uchar code settingItems[3][20];
 
-int strlen(uchar ptr[20]);
+extern uchar code errors[3][20];
+
+int strlen(uchar* ptr);
 
 void delayMs(uint ms);
 

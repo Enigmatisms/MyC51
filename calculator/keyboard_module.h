@@ -8,7 +8,6 @@
 #ifndef __KEYBOARD_MODULE_H__
 #define __KEYBOARD_MODULE_H__
 #include <reg52.h>
-#include <intrins.h>
 #include "utils.h"
 
 sbit KEY0 = P2^6;

@@ -191,7 +191,7 @@
             <RomSize>2</RomSize>
             <DataHold>0</DataHold>
             <XDataHold>0</XDataHold>
-            <UseOnchipRom>0</UseOnchipRom>
+            <UseOnchipRom>1</UseOnchipRom>
             <UseOnchipArithmetic>0</UseOnchipArithmetic>
             <UseMultipleDPTR>0</UseMultipleDPTR>
             <UseOnchipXram>0</UseOnchipXram>
@@ -309,14 +309,14 @@
           </Target51Misc>
           <C51>
             <RegisterColoring>0</RegisterColoring>
-            <VariablesInOrder>0</VariablesInOrder>
+            <VariablesInOrder>1</VariablesInOrder>
             <IntegerPromotion>1</IntegerPromotion>
             <uAregs>0</uAregs>
             <UseInterruptVector>1</UseInterruptVector>
             <Fuzzy>3</Fuzzy>
             <Optimize>8</Optimize>
             <WarningLevel>2</WarningLevel>
-            <SizeSpeed>1</SizeSpeed>
+            <SizeSpeed>0</SizeSpeed>
             <ObjectExtend>1</ObjectExtend>
             <ACallAJmp>0</ACallAJmp>
             <InterruptVectorAddress>0</InterruptVectorAddress>
@@ -415,6 +415,16 @@
               <FileName>keyboard_module.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\keyboard_module.h</FilePath>
+            </File>
+            <File>
+              <FileName>easy_stack.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\easy_stack.c</FilePath>
+            </File>
+            <File>
+              <FileName>easy_stack.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\easy_stack.h</FilePath>
             </File>
           </Files>
         </Group>
