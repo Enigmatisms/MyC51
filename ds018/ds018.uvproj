@@ -46,7 +46,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\Objects\</OutputDirectory>
-          <OutputName>calc</OutputName>
+          <OutputName>ds018</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -191,7 +191,7 @@
             <RomSize>2</RomSize>
             <DataHold>0</DataHold>
             <XDataHold>0</XDataHold>
-            <UseOnchipRom>1</UseOnchipRom>
+            <UseOnchipRom>0</UseOnchipRom>
             <UseOnchipArithmetic>0</UseOnchipArithmetic>
             <UseMultipleDPTR>0</UseMultipleDPTR>
             <UseOnchipXram>0</UseOnchipXram>
@@ -233,7 +233,7 @@
               <RCB>
                 <Type>0</Type>
                 <StartAddress>0x0</StartAddress>
-                <Size>0xffff</Size>
+                <Size>0x10000</Size>
               </RCB>
               <RXB>
                 <Type>0</Type>
@@ -309,14 +309,14 @@
           </Target51Misc>
           <C51>
             <RegisterColoring>0</RegisterColoring>
-            <VariablesInOrder>1</VariablesInOrder>
+            <VariablesInOrder>0</VariablesInOrder>
             <IntegerPromotion>1</IntegerPromotion>
             <uAregs>0</uAregs>
             <UseInterruptVector>1</UseInterruptVector>
             <Fuzzy>3</Fuzzy>
             <Optimize>8</Optimize>
             <WarningLevel>2</WarningLevel>
-            <SizeSpeed>0</SizeSpeed>
+            <SizeSpeed>1</SizeSpeed>
             <ObjectExtend>1</ObjectExtend>
             <ACallAJmp>0</ACallAJmp>
             <InterruptVectorAddress>0</InterruptVectorAddress>
@@ -382,49 +382,9 @@
               <FilePath>.\STARTUP.A51</FilePath>
             </File>
             <File>
-              <FileName>display_module.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\display_module.h</FilePath>
-            </File>
-            <File>
-              <FileName>utils.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\utils.h</FilePath>
-            </File>
-            <File>
-              <FileName>display_module.c</FileName>
+              <FileName>append_module.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\display_module.c</FilePath>
-            </File>
-            <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>utils.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\utils.c</FilePath>
-            </File>
-            <File>
-              <FileName>keyboard_module.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\keyboard_module.c</FilePath>
-            </File>
-            <File>
-              <FileName>keyboard_module.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\keyboard_module.h</FilePath>
-            </File>
-            <File>
-              <FileName>easy_stack.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\easy_stack.c</FilePath>
-            </File>
-            <File>
-              <FileName>easy_stack.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\easy_stack.h</FilePath>
+              <FilePath>.\append_module.c</FilePath>
             </File>
             <File>
               <FileName>append_module.h</FileName>
@@ -432,9 +392,19 @@
               <FilePath>.\append_module.h</FilePath>
             </File>
             <File>
-              <FileName>append_module.c</FileName>
+              <FileName>utils.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\utils.h</FilePath>
+            </File>
+            <File>
+              <FileName>utils.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\append_module.c</FilePath>
+              <FilePath>.\utils.c</FilePath>
+            </File>
+            <File>
+              <FileName>dynamic.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\dynamic.c</FilePath>
             </File>
           </Files>
         </Group>

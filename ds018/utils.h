@@ -19,14 +19,8 @@ extern uchar code settingItems[3][20];
 
 extern uchar code errors[3][20];
 
-extern uchar code temp_info[4][20];
-
-extern uchar code describe[4][12];
-
 int strlen(uchar* ptr);
 
 void delayMs(uint ms);
-
-void tempDisplay(uint temp, bit celc, uchar* str);
 
 #endif 	//__UTILS_H__

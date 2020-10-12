@@ -4,6 +4,7 @@ uchar now_col = 0;
 uchar head_row = 1;
 uchar head_col = 0;
 uchar _mode = 0;
+uint _temp = 25;
 
 bit tobe_reset = 0;
 uchar buffer[24];
@@ -217,12 +218,23 @@ void yieldResult(){
 		drawSettings();
 	}
 	else if (_mode < 7){
+		
 		switch(_mode){
-			case 4: _mode = 0; break;
-			case 5: _mode = 7; break;								///@todo 
-			case 6: _mode = 8; break;								///@todo 
+			case 4: 
+				allClear();
+				_mode = 0; break;
+			case 5:
+				allClear();
+				write(NO_CURSOR, 0);
+				_mode = 7;
+				_temp = getTempResult();
+				use_cel = 1; 
+				drawTemperature(0);
+				break;
+			case 6: 
+				allClear();
+				_mode = 8; break;								///@todo 
 		}
-		allClear();
 	}
 	else if (_mode == 8){
 		/// @todo 定时器重新设定
@@ -255,6 +267,7 @@ void moveLeft(){
 	}
 	else if (_mode == 7){						// 7 为传感器温度显示	8 为闹钟调整
 		use_cel = !use_cel;			// 切换摄氏度华氏度转换
+		drawTemperature(1);
 	}
 	else{
 		if (alarm_time < 255){
@@ -291,6 +304,7 @@ void moveRight(){
 	}
 	else if (_mode == 7){
 		use_cel = !use_cel;
+		drawTemperature(1);
 	}
 	else {
 		if (alarm_time > 5){
@@ -339,4 +353,34 @@ void drawError(uchar err){
 	writeLine("********************", 2, 0, LEFT);
 	delayMs(1500);
 	allClear();
+}
+
+void drawTemperature(bit skip){
+	uchar temp_str[4];
+	if (skip == 0){
+		writeLine(temp_info[0], 0, 1, LEFT);
+		writeLine(temp_info[1], 3, 1, LEFT);
+		
+		if (_temp > 30){
+			writeLine(describe[0], 2, 1, CENTRAL);
+		}
+		else if (_temp > 20){
+			writeLine(describe[1], 2, 1, CENTRAL);
+		}
+		else if (_temp > 10){
+			writeLine(describe[2], 2, 1, CENTRAL);
+		}
+		else {
+			writeLine(describe[3], 2, 1, CENTRAL);
+		}
+	}
+	tempDisplay(_temp, use_cel, temp_str);
+	if (use_cel == 1){
+		writeLine(temp_info[2], 1, 1, LEFT);		// 摄氏度输出
+		
+	}
+	else{
+		writeLine(temp_info[3], 1, 1, LEFT);		// 华氏度输出
+	}
+	writeLine(temp_str, 1, 0, RIGHT);
 }

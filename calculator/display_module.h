@@ -11,6 +11,7 @@
 #include <reg52.h>
 #include "utils.h"
 #include "easy_stack.h"
+#include "append_module.h"
 
 #define DELAY 1
 
@@ -52,6 +53,7 @@ extern uchar _mode;			/// 当前模式 @todo 普通计算模式，温度/电量显示模式，闹钟设
 extern uchar sets[3];			// 设置
 extern uchar buffer[24];	// 输入缓冲区
 extern uchar alarm_time;	// 闹钟时间设置（second）
+extern uint _temp;			// 温度记录
 extern bit use_cel;			// 使用摄氏度显示
 extern bit tobe_reset;		// 在等号按下后，重新输入需要清零
 
@@ -77,4 +79,5 @@ uchar checkBusy();
 void drawSettings();
 void drawMainMenu();
 void drawError(uchar err);
+void drawTemperature(bit skip);
 #endif 	//__DISPLAY_MODULE_H__
