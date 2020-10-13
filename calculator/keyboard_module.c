@@ -16,21 +16,25 @@ uint sweepingScan(){
 			case 0:
 				KEY0 = 0;
 				KEY1 = 1;
-				P3 = 0xff; break;
+				KEY2 = 1;
+				KEY3 = 1; break;
 			case 1:
 				KEY0 = 1;
 				KEY1 = 0;
-				P3 = 0xff; break;
+				KEY2 = 1;
+				KEY3 = 1; break;
 			case 2:
 				KEY0 = 1;
 				KEY1 = 1;
-				P3 = 0xfe;	break;
+				KEY2 = 0;
+			    KEY3 = 1; break;
 			default:
 				KEY0 = 1;
 				KEY1 = 1;
-				P3 = 0xfd;
+				KEY2 = 1;
+			    KEY3 = 0;
 		}
-		res = P3 & 0xfc;				// 只取取高6位
+		res = P1 & 0xfc;				// 只取取高6位
 		if (res != 0xfc){				// P3 第四位变0后的结果如果为0b1111 0000 说明没有对应键盘响应
 			switch (res){
 				case 0xf8: return 6 * i;

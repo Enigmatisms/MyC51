@@ -427,14 +427,24 @@
               <FilePath>.\easy_stack.h</FilePath>
             </File>
             <File>
-              <FileName>append_module.h</FileName>
+              <FileName>sensor_module.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\sensor_module.c</FilePath>
+            </File>
+            <File>
+              <FileName>sensor_module.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\append_module.h</FilePath>
+              <FilePath>.\sensor_module.h</FilePath>
             </File>
             <File>
               <FileName>append_module.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\append_module.c</FilePath>
+            </File>
+            <File>
+              <FileName>append_module.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\append_module.h</FilePath>
             </File>
           </Files>
         </Group>

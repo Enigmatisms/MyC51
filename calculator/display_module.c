@@ -1,4 +1,5 @@
 #include "display_module.h"
+
 uchar now_row = 1;
 uchar now_col = 0;
 uchar head_row = 1;
@@ -8,7 +9,6 @@ uint _temp = 25;
 
 bit tobe_reset = 0;
 uchar buffer[24];
-uchar alarm_time = 60;		// 闹钟时间设置（second）
 bit use_cel = 1;			// 使用摄氏度显示
 
 uchar sets[3] = {0, 0, 0};			// 设置
@@ -198,7 +198,7 @@ void yieldResult(){
 	uchar result, err, buf[3];
 	if (_mode == 0){
 		setCursor(head_row, head_col);
-		if ((head_row - 1) * 20 + head_col > 23){
+		if ((head_row - 1) * 20 + head_col > 21){
 			drawError(0x02);			// 栈溢出
 		}
 		err = calculate(buffer, &result);
@@ -213,30 +213,30 @@ void yieldResult(){
 			tobe_reset = 1;
 		}
 	}
-	else if(_mode < 4){
+	else if(_mode < MENU){
 		sets[_mode - 1] = 1 - sets[_mode - 1];
 		drawSettings();
 	}
-	else if (_mode < 7){
+	else if (_mode < IN_SENSOR){
 		
 		switch(_mode){
-			case 4: 
+			case MENU: 
 				allClear();
-				_mode = 0; break;
-			case 5:
+				_mode = CALC; break;
+			case TEMP_SENSOR:
 				allClear();
 				write(NO_CURSOR, 0);
-				_mode = 7;
+				_mode = IN_SENSOR;
 				_temp = getTempResult();
 				use_cel = 1; 
 				drawTemperature(0);
 				break;
-			case 6: 
+			case ALARM_SET: 
 				allClear();
-				_mode = 8; break;								///@todo 
+				_mode = IN_ALARM; break;								///@todo 
 		}
 	}
-	else if (_mode == 8){
+	else if (_mode == IN_ALARM){
 		/// @todo 定时器重新设定
 		/// @todo 闹钟秒数小于等于5表示不设置闹钟
 	}
@@ -244,7 +244,7 @@ void yieldResult(){
 
 /// 编号5 @brief 左向移动光标 （在设置以及主菜单中表示上移）
 void moveLeft(){
-	if (_mode == 0){
+	if (_mode == CALC){
 		if (now_col > 0){
 			now_col --;
 			write(CURSOR_LEFT, 0);
@@ -257,28 +257,27 @@ void moveLeft(){
 			}
 		}
 	}
-	else if (_mode < 4){
+	else if (_mode < MENU){
 		_mode = (_mode + 1) % 3 + 1;
 		drawSettings();
 	}
-	else if (_mode < 7){
+	else if (_mode < IN_SENSOR){
 		_mode = (_mode + 1) % 3 + 4;
 		drawMainMenu();
 	}
-	else if (_mode == 7){						// 7 为传感器温度显示	8 为闹钟调整
+	else if (_mode == IN_SENSOR){						// 7 为传感器温度显示	8 为闹钟调整
+		_temp = getTempResult();
 		use_cel = !use_cel;			// 切换摄氏度华氏度转换
 		drawTemperature(1);
 	}
 	else{
-		if (alarm_time < 255){
-			alarm_time ++;
-		}
+		;
 	}
 }
 
 /// 编号6 @brief 右向移动光标 （在设置以及主菜单中表示下移）
 void moveRight(){
-	if (_mode == 0){
+	if (_mode == CALC){
 		if (now_row == head_row && now_col >= head_col){			// 不可以右移
 			return;
 		}
@@ -294,22 +293,21 @@ void moveRight(){
 			}
 		}
 	}
-	else if (_mode < 4){
+	else if (_mode < MENU){
 		_mode = (_mode) % 3 + 1;
 		drawSettings();
 	}
-	else if (_mode < 7){
+	else if (_mode < IN_SENSOR){
 		_mode = (_mode) % 3 + 4;
 		drawMainMenu();
 	}
-	else if (_mode == 7){
+	else if (_mode == IN_SENSOR){
+		_temp = getTempResult();
 		use_cel = !use_cel;
 		drawTemperature(1);
 	}
 	else {
-		if (alarm_time > 5){
-			alarm_time --;
-		}
+		;
 	}
 }
 
@@ -360,19 +358,18 @@ void drawTemperature(bit skip){
 	if (skip == 0){
 		writeLine(temp_info[0], 0, 1, LEFT);
 		writeLine(temp_info[1], 3, 1, LEFT);
-		
-		if (_temp > 30){
-			writeLine(describe[0], 2, 1, CENTRAL);
-		}
-		else if (_temp > 20){
-			writeLine(describe[1], 2, 1, CENTRAL);
-		}
-		else if (_temp > 10){
-			writeLine(describe[2], 2, 1, CENTRAL);
-		}
-		else {
-			writeLine(describe[3], 2, 1, CENTRAL);
-		}
+	}
+	if (_temp > 30){
+		writeLine(describe[0], 2, 1, CENTRAL);
+	}
+	else if (_temp > 20){
+		writeLine(describe[1], 2, 1, CENTRAL);
+	}
+	else if (_temp > 10){
+		writeLine(describe[2], 2, 1, CENTRAL);
+	}
+	else {
+		writeLine(describe[3], 2, 1, CENTRAL);
 	}
 	tempDisplay(_temp, use_cel, temp_str);
 	if (use_cel == 1){

@@ -1,115 +1,59 @@
 #include "append_module.h"
 
-/// ds18b20 10*t延时函数
-void delay10us(uint t)
-{
-    uint i;
-    for(i = t; i > 0; i --)		// 一个_nop_空指令函数延时 1us，加上for循环有10us
-    {
-        _nop_();
-		_nop_();
-        _nop_();
-    }
-}
 
-/// ds18b20初始化
-bit sensorInit()
-{
-	bit ack;
-	Bus = 0;
-	delay10us(60);	//最小480，最大960
-	Bus = 1;
-	delay10us(6);	//15-60us
-	while(Bus == 0);
-	Bus = 1;		//让传感器释放总线，避免影响下一步
-	return ack;		//ack为0则响应成功
-}
+bit second_set = 1;
+uint now_s = 0;
+uchar now_ms = 0;
+uint alarm_time = 15;		// 65534s 为上限 (65535 被留做闹钟关闭指示)
 
-/// ds18b20写时序
-void writeInSensor(uchar dat)		//一个写周期为60-120us，主机在15--45us内对信号采样
-{
-	uchar mask;
-	for(mask = 0x01; mask != 0; mask <<= 1){
-		Bus = 0;
-		_nop_();
-		if((mask & dat) == 0){
-			Bus = 0;
-		}
-		else{
-			Bus = 1;
-		}
-		delay10us(6);//15-60us采样
-		Bus = 1;
-		_nop_();
-		_nop_();
+void alarmSet(bit add){
+	if (add == 1 && alarm_time < ALARM_MAX){
+		alarm_time ++;
+	}
+	else if (add == 0 && alarm_time > 0){
+		alarm_time --;
 	}
 }
 
-
-/*ds18b20读时序*/
-uchar readFromSensor(){
-	uchar dat = 0;
-	uchar mask, fmask;
-	for(mask = 0x01; mask != 0; mask <<= 1)//一个周期需要至少60us，但采样要在15us内完成
-	{
-		Bus = 0;
-		_nop_();
-		Bus = 1;
-		_nop_();
-		_nop_();
-		_nop_();
-		_nop_();
-		_nop_();
-		_nop_();
-		if(Bus == 0){		//读0
-			fmask = ~mask;
-			dat = dat & fmask;
-		}
-		else{
-			dat |= mask;
-		}
-		delay10us(5);
-		Bus = 1;
+/// @param 输出9位数字 [00]m 00s
+void getAlarmString(uchar* str){
+	uchar minute, second;
+	minute = alarm_time / 60;
+	second = alarm_time % 60;
+	if (second_set == 1){
+		str[0] = ((uchar)(minute / 10) + 48);
+		str[1] = minute % 10;
+		str[2] = 'm';
+		str[3] = ' ';
+		str[4] = '[';
+		str[5] = ((uchar)(second / 10) + 48);
+		str[6] = second % 10;
+		str[7] = ']';
+		str[8] = 's';
 	}
- return dat;
+	else{
+		str[0] = '[';
+		str[1] = ((uchar)(minute / 10) + 48);
+		str[2] = minute % 10;
+		str[3] = ']';
+		str[4] = 'm';
+		str[5] = ' ';
+		str[6] = ((uchar)(second / 10) + 48);
+		str[7] = second % 10;
+		str[8] = 's';
+	}
 }
 
-
-/// 转换温度子函数
-void tempConvert(){
-	sensorInit();
-	delayMs(1);
-	writeInSensor(0xCC);		//跳过ROM寻址
-	writeInSensor(0x44);		//启动一次温度转换
-}
-
-
-/// ds18b20获取温度
-uint getTemp(){
-	uint temp = 0;
-	uchar LSB, MSB;				//用来储存数据的第八位与高八位
-	sensorInit();
-	delayMs(1);
-	writeInSensor(0xCC);		//跳过寻址
-	writeInSensor(0xBE);		//发送读值命令·
-	LSB = readFromSensor();
-	MSB = readFromSensor();
-	temp = MSB;
-	temp <<= 8;
-	temp |= LSB;
-	return temp;
-}
-
-
-/*ds18b20  返回最终结果子函数*/
-uint getTempResult(){
-	float tp;
-	uint temp;
-	delayMs(10);		//10ms度过不稳定期
-	tempConvert();		//转换温度
-    delayMs(1000);		//延时1s等待转化
-    temp = getTemp();
-    tp = temp;
-    temp = tp * 0.0625;
-    return temp;		//最终结果为temp
+void timerT0() interrupt 0
+{
+	TH0 = TH0_START;
+	TL0 = TL0_START;
+	now_ms ++;
+	if (now_ms >= 20){
+		now_ms = 0;
+		now_s ++;
+	}
+	if (now_s >= alarm_time){
+		;
+	}
 }

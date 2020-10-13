@@ -1,4 +1,4 @@
-#include "append_module.h"
+#include "sensor_module.h"
 
 /// ds18b20 10*t延时函数
 void delay10us(uint t){
@@ -10,12 +10,12 @@ void delay10us(uint t){
     }
 }
 
-void initializeSensor(){
+void sensorInit(){
 	sensorReset();
 	delayMs(1);
 	writeInSensor(0xcc);		// 跳过ROM	
 	writeInSensor(0x4e);		// 写EEPROM寄存器
-	writeInSensor(0x5f);		// 最高温度64度
+	writeInSensor(0x5f);		// 最高温度95度
 	writeInSensor(0x00);		// 最低温度设置为0
 	writeInSensor(0x1f);		// 最低精度设置0.5（高位奇数）（100ms内完成转化）
 }
@@ -24,16 +24,16 @@ void initializeSensor(){
 bit sensorReset(){
 	bit ack;
 	Bus = 0;
-	delay10us(60);	//最小480，最大960
+	delay10us(60);	// 最小480，最大960
 	Bus = 1;
-	delay10us(6);	//15-60us
+	delay10us(6);	// 15-60us
 	while(Bus == 0);
-	Bus = 1;		//让传感器释放总线，避免影响下一步
-	return ack;		//ack为0则响应成功
+	Bus = 1;		// 让传感器释放总线，避免影响下一步
+	return ack;		// ack为0则响应成功 实际不需判定
 }
 
 /// ds18b20写时序
-void writeInSensor(uchar dat){		//一个写周期为60-120us，主机在15--45us内对信号采样
+void writeInSensor(uchar dat){		// 一个写周期为60-120us，主机在15--45us内对信号采样
 	uchar mask;
 	for(mask = 0x01; mask != 0; mask <<= 1){
 		Bus = 0;
@@ -56,7 +56,7 @@ void writeInSensor(uchar dat){		//一个写周期为60-120us，主机在15--45us内对信号采
 uchar readFromSensor(){
 	uchar dat = 0;
 	uchar mask, fmask;
-	for(mask = 0x01; mask != 0; mask <<= 1){	//一个周期需要至少60us，但采样要在15us内完成
+	for(mask = 0x01; mask != 0; mask <<= 1){	// 一个周期需要至少60us，但采样要在15us内完成
 		Bus = 0;
 		_nop_();
 		Bus = 1;
@@ -66,7 +66,7 @@ uchar readFromSensor(){
 		_nop_();
 		_nop_();
 		_nop_();
-		if(Bus == 0){		//读0
+		if(Bus == 0){		// 读0
 			fmask = ~mask;
 			dat = dat & fmask;
 		}
@@ -92,11 +92,11 @@ void tempConvert(){
 /// ds18b20获取温度
 uint getTemp(){
 	uint temp = 0;
-	uchar LSB, MSB;				//用来储存数据的第八位与高八位
+	uchar LSB, MSB;				// 用来储存数据的第八位与高八位
 	sensorReset();
 	delayMs(1);
-	writeInSensor(0xcc);		//跳过寻址
-	writeInSensor(0xbe);		//发送读值命令
+	writeInSensor(0xcc);		// 跳过寻址
+	writeInSensor(0xbe);		// 发送读值命令
 	LSB = readFromSensor();
 	MSB = readFromSensor();
 	temp = MSB;
@@ -110,11 +110,11 @@ uint getTemp(){
 uint getTempResult(){
 	float tp;
 	uint temp;
-	delayMs(10);		//10ms度过不稳定期
-	tempConvert();		//转换温度
-    delayMs(120);		//延时1s等待转化
+	delayMs(10);		// 10ms度过不稳定期
+	tempConvert();		// 转换温度
+    delayMs(120);		// 120ms 转化期
     temp = getTemp();
     tp = temp;
     temp = tp * 0.0625;
-    return temp;		//最终结果为temp
+    return temp;		// 最终结果为temp
 }

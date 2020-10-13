@@ -5,6 +5,7 @@
 void main(){
 	uint pos, old_pos = 24;
 	Init();
+	sensorInit();
 	while(1){
 		pos = sweepingScan();
 		if (pos != 24 && pos == old_pos){

@@ -11,7 +11,7 @@
 #include <reg52.h>
 #include "utils.h"
 #include "easy_stack.h"
-#include "append_module.h"
+#include "sensor_module.h"
 
 #define DELAY 1
 
@@ -40,6 +40,10 @@
 #define CALC	0			// 系统模式
 #define SETS	1			// 1为 指示灯 2为按键音 3为科学计数法显示
 #define MENU	4			// 4为计算模式	5为温度显示  6为闹钟设置
+#define TEMP_SENSOR	5		// 温度传感器待选
+#define ALARM_SET	6		// 闹钟待选
+#define IN_SENSOR	7		// 温度传感器界面内部
+#define IN_ALARM	8		// 闹钟设置界面内部
 
 sbit RS = P2 ^ 0;
 sbit RW = P2 ^ 1;
@@ -52,7 +56,6 @@ extern uchar head_col;		// 当前屏幕上字符最大达到的列
 extern uchar _mode;			/// 当前模式 @todo 普通计算模式，温度/电量显示模式，闹钟设置（计时器中断打开/关闭？）
 extern uchar sets[3];			// 设置
 extern uchar buffer[24];	// 输入缓冲区
-extern uchar alarm_time;	// 闹钟时间设置（second）
 extern uint _temp;			// 温度记录
 extern bit use_cel;			// 使用摄氏度显示
 extern bit tobe_reset;		// 在等号按下后，重新输入需要清零

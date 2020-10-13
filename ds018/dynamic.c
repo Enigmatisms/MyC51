@@ -13,17 +13,17 @@ uchar lcd_table[10] = {
 
 
 /// uint 只显示8位
-void dynamicLights(float input){
-	float i;
+void dynamicLights(uint input){
+	uint i;
 	uchar now, cs = 0x01;
-	for (i = 10.0; i > 1e-3; i /= 10.0){
+	for (i = 1e4; i > 0; i /= 10){
 		P2 = cs;
 		cs <<= 1;
 		if (cs > 0x10){
 			cs = 0x01;
 		}
 		now = (uchar)(input / i) % 10;
-		input -= (float)now * i;
+		input -= now * i;
 		P0 = lcd_table[now] ^ 0xff;		// 共阴极接法
 		
 		delayMs(6);
@@ -31,9 +31,10 @@ void dynamicLights(float input){
 }
 
 void main(){
-	float temp;
+	uint temp;
 	P2 = 0x00;
 	LED = 1;
+	initializeSensor();
 	temp = getTempResult();
 	LED = 0;
 	while(1){

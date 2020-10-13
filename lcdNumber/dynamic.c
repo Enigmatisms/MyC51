@@ -36,5 +36,6 @@ void dynamicLights(){
 void main(){
 	pos = 1;
 	seg = 1;
+	initializeSensor();
 	dynamicLights();
 }
