@@ -53,9 +53,25 @@ void keyboardEvent(uint pos){
 	uchar ch;
 	ch = charTable[pos];
 	if (ch > 10){
+		if (_mode == IN_ALARM){
+			if (ch == '+'){
+				alarmSet(1);
+				drawAlarmUI(1);		// 更新一次LCD闹钟设置显示
+			}
+			else if (ch == '-'){
+				alarmSet(0);
+				drawAlarmUI(1);		// 更新一次LCD闹钟设置显示
+			}
+			return;
+		}
 		writeCursor(ch);
 	}
 	else{
+		if (_mode == SUSPEND){
+			if (ch == CLA)
+				allClear();
+			return;
+		}
 		switch(ch){
 			case 0: doPop(); break;
 			case 1: allClear(); break;

@@ -4,14 +4,11 @@ uchar now_row = 1;
 uchar now_col = 0;
 uchar head_row = 1;
 uchar head_col = 0;
-uchar _mode = 0;
 uint _temp = 25;
 
 bit tobe_reset = 0;
 uchar buffer[24];
 bit use_cel = 1;			// 使用摄氏度显示
-
-uchar sets[3] = {0, 0, 0};			// 设置
 
 void Init(){
 	write(INITIAL, 0);
@@ -166,12 +163,19 @@ void allClear(){
 	head_col = 0;
 	now_row = head_row;
 	now_col = head_col;
+	if (alarm_time == ALARM_OFF){
+		writeLine(alarm_info[4], 0, 1, CENTRAL);
+	}
+	else{
+		writeLine(alarm_info[5], 0, 1, CENTRAL);
+	}
 	write(SHOW_CURSOR, 0);
 	setCursor(1, 0);
 	_mode = CALC;
 	for (i = 0; i < 24; i++){
 		*(buffer + i) = 0;
 	}
+	suspend_lock = 0;
 }
 
 
@@ -215,6 +219,7 @@ void yieldResult(){
 	}
 	else if(_mode < MENU){
 		sets[_mode - 1] = 1 - sets[_mode - 1];
+		LED_OUTPUT = 1 - sets[2];
 		drawSettings();
 	}
 	else if (_mode < IN_SENSOR){
@@ -232,13 +237,14 @@ void yieldResult(){
 				drawTemperature(0);
 				break;
 			case ALARM_SET: 
-				allClear();
-				_mode = IN_ALARM; break;								///@todo 
+				_mode = IN_ALARM;
+				drawAlarmUI(0);					// 0 标识不跳过，兼有初始化以及绘制初始UI的功能
+			break;								///@todo 
 		}
 	}
-	else if (_mode == IN_ALARM){
-		/// @todo 定时器重新设定
-		/// @todo 闹钟秒数小于等于5表示不设置闹钟
+	else if(_mode == IN_ALARM){
+		TR0 = 1;
+		allClear();								// 设置成功
 	}
 }
 
@@ -270,8 +276,9 @@ void moveLeft(){
 		use_cel = !use_cel;			// 切换摄氏度华氏度转换
 		drawTemperature(1);
 	}
-	else{
-		;
+	else {
+		second_set = ~second_set;
+		drawAlarmUI(1);
 	}
 }
 
@@ -307,7 +314,8 @@ void moveRight(){
 		drawTemperature(1);
 	}
 	else {
-		;
+		second_set = ~second_set;
+		drawAlarmUI(1);
 	}
 }
 
@@ -380,4 +388,36 @@ void drawTemperature(bit skip){
 		writeLine(temp_info[3], 1, 1, LEFT);		// 华氏度输出
 	}
 	writeLine(temp_str, 1, 0, RIGHT);
+}
+
+void drawAlarmUI(bit skip){			// 绘制闹钟设置界面（skip 跳过某些冗余绘制）
+	uchar i, astr[10];
+	if (skip == 0){
+		alarmReset(6);
+		for (i = 0; i < 4; i++){
+			writeLine(alarm_ui[i], i, 1, LEFT);
+		}
+		TR0 = 0;
+	}
+	getAlarmString(astr);
+	writeLine(astr, 2, 0, RIGHT);
+}
+
+void alarmingEffect(){
+	uchar i;
+	for (i = 0; i < 4; i++){
+		writeLine(alarm_info[i], i, 1, CENTRAL);
+	}
+	/// @todo
+	playSound();
+	delayMs(2000);
+	allClear();
+}
+
+void drawSuspend(){
+	uchar i;
+	for (i = 0; i < 3; i++){
+		writeLine(suspend_ui[i], i, 1, CENTRAL);
+	}
+	writeLine(suspend_ui[0], 3, 1, CENTRAL);
 }

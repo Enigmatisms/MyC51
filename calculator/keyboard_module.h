@@ -10,10 +10,10 @@
 #include <reg52.h>
 #include "utils.h"
 
-sbit KEY0 = P2^6;
-sbit KEY1 = P2^7;
-sbit KEY2 = P3^0;
-sbit KEY3 = P3^1;
+sbit KEY0 = P2 ^ 6;
+sbit KEY1 = P2 ^ 7;
+sbit KEY2 = P3 ^ 0;
+sbit KEY3 = P3 ^ 1;
 
 extern uchar code charTable[24];
 
