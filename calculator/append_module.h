@@ -31,6 +31,6 @@ void alarmReset(uint atime);
 void melody(uchar time);
 void playSound();
 void halfBeat(uchar t);
-
+void pressingSound();
 #endif 	//__APPEND_MODULE_H__
 

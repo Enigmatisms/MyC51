@@ -10,7 +10,7 @@
 
 #include <reg52.h>
 #include "utils.h"
-#include "easy_stack.h"
+#include "stack_module.h"
 #include "sensor_module.h"
 #include "append_module.h"
 

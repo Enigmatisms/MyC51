@@ -205,7 +205,7 @@ void yieldResult(){
 		if ((head_row - 1) * 20 + head_col > 21){
 			drawError(0x02);			// Õ»Òç³ö
 		}
-		err = calculate(buffer, &result);
+		err = stackInput(buffer, &result);
 		if (err != 0x03){
 			drawError(err);
 		}

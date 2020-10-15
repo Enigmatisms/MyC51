@@ -417,16 +417,6 @@
               <FilePath>.\keyboard_module.h</FilePath>
             </File>
             <File>
-              <FileName>easy_stack.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\easy_stack.c</FilePath>
-            </File>
-            <File>
-              <FileName>easy_stack.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\easy_stack.h</FilePath>
-            </File>
-            <File>
               <FileName>sensor_module.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\sensor_module.c</FilePath>
@@ -445,6 +435,16 @@
               <FileName>append_module.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\append_module.h</FilePath>
+            </File>
+            <File>
+              <FileName>stack_module.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\stack_module.c</FilePath>
+            </File>
+            <File>
+              <FileName>stack_module.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\stack_module.h</FilePath>
             </File>
           </Files>
         </Group>
