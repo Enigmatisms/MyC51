@@ -16,7 +16,7 @@ void subscriberInit(){
 	EX0 = 1;						 // 打开外部中断0，作为接收结束标志
 	EA = 1;
 	IT0 = 1;						 // 下降沿触发
-	ALE = 0;
+	T0 = 0;
 }
 
 void receive() {        	

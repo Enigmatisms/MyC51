@@ -416,6 +416,16 @@
               <FileType>1</FileType>
               <FilePath>.\subscribe.c</FilePath>
             </File>
+            <File>
+              <FileName>keyboard_module.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\keyboard_module.c</FilePath>
+            </File>
+            <File>
+              <FileName>keyboard_module.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\keyboard_module.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
@@ -829,6 +839,16 @@
               <FileName>subscribe.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\subscribe.c</FilePath>
+            </File>
+            <File>
+              <FileName>keyboard_module.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\keyboard_module.c</FilePath>
+            </File>
+            <File>
+              <FileName>keyboard_module.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\keyboard_module.h</FilePath>
             </File>
           </Files>
         </Group>

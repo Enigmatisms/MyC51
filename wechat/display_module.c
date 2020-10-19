@@ -1,12 +1,10 @@
 #include "display_module.h"
 
-uchar now_row = 1;
-uchar now_col = 0;
-uchar head_row = 1;
-uchar head_col = 0;
-uint _temp = 25;
-
 uchar buffer[20];
+uchar oldBuffer[20];
+bit self_old = 1;	
+bit has_history = 0;
+uchar head_col = 0;
 
 void Init(){
 	write(INITIAL, 0);
@@ -43,42 +41,12 @@ void write(uchar _data, bit data_flag){
 }
 
 // 在行尾补充
-void writeCursor(uchar _data){
-	if ((now_row != head_row) || (now_col != head_col)){		// 存在光标不与最大位置对齐时，只改变当前位置
-		if (now_col < 19){
-			write(_data, 1);
-			buffer[(now_row - 1) * 20 + now_col] = _data;
-			now_col ++;
-		}
-		else{
-			if (now_row == 1){
-				write(_data, 1);
-				buffer[(now_row - 1) * 20 + now_col] = _data;
-				setCursor(2, 0);		// 光标位置改变到下一行
-				now_col = 0;
-				now_row = 2;
-			}
-		}
-	}
-	else{								// 光标未对齐时只更改当前位置上的字符，不会影响最大长
-		if (head_col < 19){
-			write(_data, 1);
-			buffer[(head_row - 1) * 20 + head_col] = _data;
-			buffer[(head_row - 1) * 20 + head_col] = _data;
-			head_col ++;
-			now_col = head_col;
-		}
-		else{
-			if (head_row == 1){
-				write(_data, 1);
-				buffer[(head_row - 1) * 20 + head_col] = _data;
-				setCursor(2, 0);		// 光标位置改变到下一行
-				head_col = 0;
-				head_row = 2;
-				now_row = head_row;
-				now_col = head_col;
-			}
-		}
+void writeCursor(uchar _data){							// 光标未对齐时只更改当前位置上的字符，不会影响最大长
+	if (head_col < 19){
+		write(_data, 1);
+		buffer[head_col] = _data;
+		buffer[head_col] = _data;
+		head_col ++;
 	}
 }
 
@@ -97,7 +65,7 @@ void writeLine(uchar* ptr, uint line, bit clear, uchar align){
 	}
 	if (clear == 0){
 		write(DISPLAY_START + line_offset[line] + start_pos, 0);
-		for (index = 0; index < 20 && ptr[index] >= 10; index++){
+		for (index = 0; index < 20 && ptr[index] >= 10 && ptr[index] != '#'; index++){
 			write(ptr[index], 1);
 		}
 	}
@@ -106,7 +74,7 @@ void writeLine(uchar* ptr, uint line, bit clear, uchar align){
 		for (index = 0; index < start_pos; index ++){
 			write(0x20, 1);
 		}
-		for (index = 0; index < 20 && ptr[index] >= 0x0a; index ++){
+		for (index = 0; index < 20 && ptr[index] >= 0x0a && ptr[index] != '#'; index ++){
 			write(ptr[index], 1);
 		}
 		for (; index < 20 - start_pos; index ++){
@@ -115,7 +83,7 @@ void writeLine(uchar* ptr, uint line, bit clear, uchar align){
 	}
 }
 
-//========================光标移动（包括写入/删除/左右移位）==========================
+//========================光标移动（包括写入/删除）==========================
 
 void setCursor(uchar row, uchar col){
 	write(DISPLAY_START + line_offset[row] + col, 0);
@@ -123,33 +91,12 @@ void setCursor(uchar row, uchar col){
 
 /// 编号0 @brief删除行末字符
 void doPop(){
-	if (_mode){
-		return;
-	}
-	if ((now_row != head_row) || (now_col != head_col)){
-		now_row = head_row;
-		now_col = head_col;
-		setCursor(head_row, head_col);
-	}
-	if (head_col != 0){
+	if (head_col > 0){
 		head_col --;
-		now_col --;
 		write(CURSOR_LEFT, 0);		// 光标移动到末尾字符上	
 		write(' ', 1);				// 清除
 		write(CURSOR_LEFT, 0);		// 由于光标一直采取右移的方式，写入以后会右移一位，则需要左移
-		buffer[(head_row - 1) * 20 + head_col] = 0;
-	}
-	else{
-		if (head_row > 1){
-			head_row = 1;
-			head_col = 19;
-			now_row = head_row;
-			now_col = head_col;
-			setCursor(1, 19);
-			write(' ', 1);
-			setCursor(1, 19);		// 跨行删除时，由第二行到第一行先退回光标，再删除，再移动光标到第二行行首
-			buffer[(head_row - 1) * 20 + head_col] = 0;
-		}
+		buffer[head_col] = 0;		// 删除
 	}
 }
 
@@ -157,10 +104,7 @@ void doPop(){
 void allClear(){
 	int i;
 	write(CLA, 0);
-	head_row = 1;
 	head_col = 0;
-	now_row = head_row;
-	now_col = head_col;
 	/// @todo: 此处需要像计算器一样增加一个顶行显示
 //	if (alarm_time == ALARM_OFF){
 //		writeLine(alarm_info[4], 0, 1, CENTRAL);
@@ -169,65 +113,10 @@ void allClear(){
 //		writeLine(alarm_info[5], 0, 1, CENTRAL);
 //	}
 	write(SHOW_CURSOR, 0);
-	setCursor(1, 0);
+	setCursor(3, 0);
 	_mode = CHATTING;
 	for (i = 0; i < 20; i++){
 		*(buffer + i) = 0;
-	}
-}
-
-/// 编号4 @brief 等号操作 （在设置以及主菜单中表示确定或者更改）
-void yieldResult(){
-	uchar result, buf[3];
-	if (_mode == 0){
-		setCursor(head_row, head_col);
-		buf[0] = (uchar)(result / 100) + 48;
-		buf[1] = (uchar)((result - (buf[0] - 48) * 100) / 10) + 48;
-		buf[2] = result % 10 + 48;
-		writeLine(buf, 3, 1, RIGHT);
-	}
-}
-
-/// 编号5 @brief 左向移动光标 （在设置以及主菜单中表示上移）
-void moveLeft(){
-	if (_mode == CHATTING){
-		if (now_col > 0){
-			now_col --;
-			write(CURSOR_LEFT, 0);
-		}
-		else {
-			if (now_row > 1){
-				now_row = 1;
-				now_col = 19;
-				setCursor(1, 19);
-			}
-		}
-	}
-	else {
-		_mode = (_mode + 1) % 3 + 1;
-	}
-}
-
-/// 编号6 @brief 右向移动光标 （在设置以及主菜单中表示下移）
-void moveRight(){
-	if (_mode == CHATTING){
-		if (now_row == head_row && now_col >= head_col){			// 不可以右移
-			return;
-		}
-		if (now_col < 19){
-			now_col ++;
-			write(CURSOR_RIGHT, 0);
-		}
-		else {
-			if (now_row < 2){
-				now_row = 2;
-				now_col = 0;
-				setCursor(2, 0);
-			}
-		}
-	}
-	else {
-		_mode = (_mode) % 3 + 1;
 	}
 }
 
@@ -237,4 +126,43 @@ void drawSuspend(){
 		writeLine(suspend_ui[i], i, 1, CENTRAL);
 	}
 	writeLine(suspend_ui[0], 3, 1, CENTRAL);
+}
+
+void drawIncomingMessage(uchar* buf, bit self){
+	uchar i;
+	if (has_history == 1){
+		if (self_old == 1){
+			writeLine(oldBuffer, 1, 1, RIGHT);
+		}
+		else {
+			writeLine(oldBuffer, 1, 1, LEFT);
+		}
+		if (self == 1){
+			writeLine(buf, 2, 1, RIGHT);
+		}
+		else {
+			writeLine(buf, 2, 1, LEFT);
+		}
+	}
+	else{
+		if (self == 1){
+			writeLine(buf, 1, 1, RIGHT);
+		}
+		else {
+			writeLine(buf, 1, 1, LEFT);
+		}
+		has_history = 1;
+	}
+	self_old = self;		// 历史消息是否来自本机键盘响应设置
+	for (i = 0; i < 20; i++){
+		oldBuffer[i] = buf[i];
+	}
+	setCursor(3, 0);
+	if (self == 0){			// 本次绘制来自对方的输出，那么为自动响应的，需要清除
+		draw_allow = 0;
+		bufferReset();		// 包含receiveBuffer的重置以及索引重置
+	}
+	else{
+		head_col = 0;		// 自身输入的索引为head_col
+	}
 }

@@ -37,14 +37,12 @@ sbit RS = P3 ^ 5;
 sbit RW = P3 ^ 6;
 sbit EN = P3 ^ 7;
 
-extern uchar now_row;		// 当前光标行
-extern uchar now_col;		// 当前光标列
-extern uchar head_row;		// 当前屏幕上字符最大达到的行
+extern bit self_old;				// 历史消息是本机而非来自串口
+extern bit has_history;			// 是否存在历史消息
 extern uchar head_col;		// 当前屏幕上字符最大达到的列
 
 extern uchar buffer[20];	// 输入缓冲区
-
-/// 设置中包括：是否打开按键与闹钟指示灯？是否静音？是否开启科学计数法显示？（最后一个最难）
+extern uchar oldBuffer[20];	// 历史消息缓冲区
 
 void Init();				// 初始化
 
@@ -52,8 +50,6 @@ void Init();				// 初始化
 void doPop();				// 行尾删除
 void allClear();			// 清空(本行)
 void confirm();				// 消息发送(或者密码输入)
-void moveLeft();			// 光标左移
-void moveRight();			// 光标右移
 
 void writeCursor(uchar _data);	// 光标边界检测 + 输入
 void write(uchar _dat, bit data_flag);		// 简单写入
@@ -62,4 +58,5 @@ void setCursor(uchar row, uchar col);
 uchar checkBusy();
 
 void drawSuspend();
+void drawIncomingMessage(uchar *buf, bit self);
 #endif 	//__DISPLAY_MODULE_H__

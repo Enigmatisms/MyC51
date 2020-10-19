@@ -7,7 +7,6 @@
 #define __SERIAL_LISTEN_H__
 #include "utils.h"
 
-sbit ALE = P3 ^ 4;
 extern uchar receiveBuffer[20];
 extern uchar buffer_ptr;
 extern bit ready;

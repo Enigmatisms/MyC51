@@ -49,7 +49,8 @@ void keyboardEvent(uint pos){
 				ch -= 32;				// 得到大写字母
 			}
 		}
-		writeCursor(ch);
+		bufferInput(ch);
+		// writeCursor(ch);
 	}
 	else{
 //		if (_mode == LOCK){
@@ -59,10 +60,13 @@ void keyboardEvent(uint pos){
 		switch(ch){
 			case 0: cap =~ cap; break;
 			case 1: 
-				doPop();
+				bufferPop();
+				// doPop();
 			break;
 			case 2: 
-				drawIncomingMessage(buffer, 1);		// 本机键盘响应输入绘制
+				send();
+				// messageBuzz();
+				bufferReset();
 			break;
 		}
 	}

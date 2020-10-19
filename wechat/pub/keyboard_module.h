@@ -8,9 +8,7 @@
 #ifndef __KEYBOARD_MODULE_H__
 #define __KEYBOARD_MODULE_H__
 #include <reg52.h>
-#include <intrins.h>
-#include "serial_listen.h"
-#include "display_module.h"
+#include "serial_talk.h"
 
 extern bit cap;
 extern uchar code charTable[40];
