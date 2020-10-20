@@ -5,6 +5,7 @@ uchar oldBuffer[20];
 bit self_old = 1;	
 bit has_history = 0;
 uchar head_col = 0;
+uchar toneHigh = 1, toneLow = 1;
 
 void Init(){
 	write(INITIAL, 0);
@@ -45,7 +46,6 @@ void writeCursor(uchar _data){							// 光标未对齐时只更改当前位置上的字符，不会
 	if (head_col < 19){
 		write(_data, 1);
 		buffer[head_col] = _data;
-		buffer[head_col] = _data;
 		head_col ++;
 	}
 }
@@ -65,7 +65,7 @@ void writeLine(uchar* ptr, uint line, bit clear, uchar align){
 	}
 	if (clear == 0){
 		write(DISPLAY_START + line_offset[line] + start_pos, 0);
-		for (index = 0; index < 20 && ptr[index] >= 10 && ptr[index] != '#'; index++){
+		for (index = 0; index < 20 && ptr[index] >= 10; index++){
 			write(ptr[index], 1);
 		}
 	}
@@ -74,7 +74,7 @@ void writeLine(uchar* ptr, uint line, bit clear, uchar align){
 		for (index = 0; index < start_pos; index ++){
 			write(0x20, 1);
 		}
-		for (index = 0; index < 20 && ptr[index] >= 0x0a && ptr[index] != '#'; index ++){
+		for (index = 0; index < 20 && ptr[index] >= 0x0a; index ++){
 			write(ptr[index], 1);
 		}
 		for (; index < 20 - start_pos; index ++){
@@ -102,30 +102,24 @@ void doPop(){
 
 /// 编号1 @brief AC @todo 此后需要增加：清除栈内所有内容
 void allClear(){
-	int i;
 	write(CLA, 0);
-	head_col = 0;
-	/// @todo: 此处需要像计算器一样增加一个顶行显示
-//	if (alarm_time == ALARM_OFF){
-//		writeLine(alarm_info[4], 0, 1, CENTRAL);
-//	}
-//	else{
-//		writeLine(alarm_info[5], 0, 1, CENTRAL);
-//	}
+	writeLine(wechat_info[0], 0, 1, CENTRAL);
 	write(SHOW_CURSOR, 0);
 	setCursor(3, 0);
 	_mode = CHATTING;
-	for (i = 0; i < 20; i++){
-		*(buffer + i) = 0;
+	for (head_col = 0; head_col < 20; head_col++){
+		*(buffer + head_col) = 0;
 	}
+	head_col = 0;
 }
 
 void drawSuspend(){
 	uchar i;
 	for (i = 0; i < 3; i++){
-		writeLine(suspend_ui[i], i, 1, CENTRAL);
+		writeLine(lock_info[i], i, 1, CENTRAL);
 	}
-	writeLine(suspend_ui[0], 3, 1, CENTRAL);
+	writeLine(lock_info[0], 3, 1, CENTRAL);
+	setCursor(2, 5);
 }
 
 void drawIncomingMessage(uchar* buf, bit self){
@@ -156,13 +150,96 @@ void drawIncomingMessage(uchar* buf, bit self){
 	self_old = self;		// 历史消息是否来自本机键盘响应设置
 	for (i = 0; i < 20; i++){
 		oldBuffer[i] = buf[i];
+		buf[i] = 0;
 	}
-	setCursor(3, 0);
 	if (self == 0){			// 本次绘制来自对方的输出，那么为自动响应的，需要清除
 		draw_allow = 0;
 		bufferReset();		// 包含receiveBuffer的重置以及索引重置
 	}
 	else{
+		writeLine(" ", 3, 1, LEFT);
 		head_col = 0;		// 自身输入的索引为head_col
 	}
+	setCursor(3, 0);
+}
+
+void printPassword(uchar pin){
+	if (head_col < 9){
+		if (head_col > 0){
+			write(CURSOR_LEFT, 0);
+			write('*', 1);				// 将上一位设置为 *
+		}
+		writeCursor(pin);
+	}
+}
+
+void isPasswordRight(){
+	uchar i;
+	for (i = 0; i < 9; i++){
+		if (buffer[i] != password[i]){
+			writeLine(wechat_info[1], 1, 1, LEFT);
+			writeLine(lock_info[2], 2, 1, LEFT);
+			break;
+		}
+	}
+	if (i < 9){
+		counter++;
+		if (counter >= 3){
+			_mode = FAULTS;			// 三次密码失败模式
+			writeLine(wechat_info[2], 2, 1, CENTRAL);
+			write(NO_CURSOR, 0);
+			return;
+		}
+		for (i = 0; i < 9; i++){
+			buffer[i] = 0;
+		}
+		head_col = 0;
+		setCursor(2, 5);
+		playSound(error_tone);
+	}
+	else {		// 通过
+		writeLine(wechat_info[3], 1, 1, LEFT);
+		playSound(unlock_tone);
+		allClear();
+	}
+}
+
+/// @brief 蜂鸣器方波输出
+void rectWave() interrupt 1
+{
+	TR0 = 0;
+	SPEAKER =! SPEAKER;
+	TH0 = toneHigh;
+	TL0 = toneLow;
+	TR0 = 1;
+}
+
+void halfBeat(uchar t){
+	uchar t1;
+	uint t2;
+	for(t1 = 0; t1 < t; t1++){
+		for(t2 = 0; t2 < 16000; t2++){
+			;
+        }
+	}
+	TR0 = 0;
+}
+
+void melody(uchar time){
+	TR0 = 1;
+	halfBeat(time);                      
+}
+
+void playSound(uchar* song){
+	uchar i, k, time;
+	ET0 = 1;
+	for (i = 0; i < 9; i += 3){
+		k = song[i] + 7 * song[i + 1] - 1;
+		toneHigh = FREQH[k];
+		toneLow = FREQL[k];
+		time = song[i + 2];
+		melody(time);
+	}
+	ET0 = 0;
+	TR0 = 0;
 }

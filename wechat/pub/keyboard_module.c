@@ -34,13 +34,14 @@ uint sweepingScan(){
 		}
 		delayMs(5);
 	}
+	P0 = 0x1f;
 	return 40;			// 没有键盘事件
 }
 
 void keyboardEvent(uint pos){
 	uchar ch;
 	ch = charTable[pos];
-	if (ch > 32){
+	if (ch >= 32){
 		if (cap == 1){
 			if (ch < '6'){
 				ch = digit2Sign[ch - '0'];

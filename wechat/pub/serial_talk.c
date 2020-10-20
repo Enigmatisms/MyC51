@@ -30,6 +30,9 @@ void send(){            // 数据发送程序
 			while(TI == 0);                       // 若发送中断标志位没有置1(正在发送数据)，就等待
 			TI = 0;                               // 若发送完成，TI自动置1，这里把它清零
 		}
+		if (sendBuffer[buf_ptr] == '#'){
+			break;
+		}
 	}
 	TI = 0;
 	TR1 = 0;

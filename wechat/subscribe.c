@@ -6,8 +6,9 @@ void main(){
 	uint pos, old_pos = 40;
 	Init();
 	subscriberInit();
-	writeLine("Test", 0, 1, CENTRAL);
-	setCursor(3, 0);
+	_mode = LOCKED;
+	drawSuspend();
+	setCursor(2, 5);
 	while (1){
 		if (ready == 1){			// 接收串口消息时不响应键盘
 			receive();
@@ -27,6 +28,7 @@ void main(){
 		}
 		if (draw_allow == 1){		// 输出则进行输出
 			drawIncomingMessage(receiveBuffer, 0);	// 来自对方的输入
+			playSound(message_tone);
 		}
 	}
 }

@@ -32,15 +32,16 @@ uint sweepingScan(){
 				case 0x7f: return 8 * i + 7;
 			}
 		}
-		delayMs(5);
+		delayMs(1);
 	}
+	P0 = 0x1f;
 	return 40;			// 没有键盘事件
 }
 
 void keyboardEvent(uint pos){
 	uchar ch;
 	ch = charTable[pos];
-	if (ch > 32){
+	if (ch >= 32){
 		if (cap == 1){
 			if (ch < '6'){
 				ch = digit2Sign[ch - '0'];
@@ -49,21 +50,29 @@ void keyboardEvent(uint pos){
 				ch -= 32;				// 得到大写字母
 			}
 		}
-		writeCursor(ch);
+		if (_mode == CHATTING){
+			writeCursor(ch);
+		}
+		else if (_mode == LOCKED){
+			printPassword(ch);
+		}
 	}
 	else{
-//		if (_mode == LOCK){
-//			/// @todo 还需要构建：
-//			/// 当为锁定模式时，ENTER为确认，DEL位退格，空格为全部清除，CAP大写锁，但是，可以输入符号
-//		}
-		switch(ch){
-			case 0: cap =~ cap; break;
-			case 1: 
-				doPop();
-			break;
-			case 2: 
-				drawIncomingMessage(buffer, 1);		// 本机键盘响应输入绘制
-			break;
+		if (_mode <= LOCKED){
+			switch(ch){
+				case 0: cap =~ cap; break;
+				case 1: 
+					doPop();
+				break;
+				case 2: 
+					if (_mode == CHATTING){
+						drawIncomingMessage(buffer, 1);		// 本机键盘响应输入绘制
+					}
+					else {
+						isPasswordRight();
+					}
+				break;
+			}
 		}
 	}
 }

@@ -51,9 +51,10 @@ void receive() {
 }
 
 void bufferReset(){
-	for (buffer_ptr = 19; buffer_ptr >= 0; buffer_ptr--){
-		receiveBuffer[buffer_ptr++] = '\0';
+	for (buffer_ptr = 0; buffer_ptr < 20; buffer_ptr++){
+		receiveBuffer[buffer_ptr] = '\0';
 	}
+	buffer_ptr = 0;
 }
 
 // 接到数据提醒，开始收数据

@@ -36,10 +36,12 @@
 sbit RS = P3 ^ 5;
 sbit RW = P3 ^ 6;
 sbit EN = P3 ^ 7;
+sbit SPEAKER = P3 ^ 3;
 
 extern bit self_old;				// 历史消息是本机而非来自串口
 extern bit has_history;			// 是否存在历史消息
 extern uchar head_col;		// 当前屏幕上字符最大达到的列
+extern uchar toneHigh, toneLow;
 
 extern uchar buffer[20];	// 输入缓冲区
 extern uchar oldBuffer[20];	// 历史消息缓冲区
@@ -59,4 +61,9 @@ uchar checkBusy();
 
 void drawSuspend();
 void drawIncomingMessage(uchar *buf, bit self);
+void printPassword(uchar pin);
+void isPasswordRight();
+void halfBeat(uchar t);
+void melody(uchar time);
+void playSound(uchar* song);
 #endif 	//__DISPLAY_MODULE_H__
