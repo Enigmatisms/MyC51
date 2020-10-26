@@ -1,5 +1,6 @@
 #include "serial_talk.h"
 
+uchar counter = 0;
 uchar sendBuffer[20];
 uchar buf_ptr;
 uchar code testString[4][20] = {
@@ -37,6 +38,11 @@ void send(){            // 数据发送程序
 	TI = 0;
 	TR1 = 0;
 	FLAG = 1;
+	counter++;
+	if (counter >= 10){
+		counter = 0;
+	}
+	P1 = counter;
 }
 
 void bufferInput(uchar dat){

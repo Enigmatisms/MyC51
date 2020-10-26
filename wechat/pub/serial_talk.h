@@ -10,6 +10,7 @@ extern uchar sendBuffer[20];
 extern uchar buf_ptr;
 extern uchar code testString[4][20];
 extern uchar test_ptr;
+extern uchar counter;
 
 void send();
 void bufferInput(uchar dat);	// ª∫≥Â ‰»Î

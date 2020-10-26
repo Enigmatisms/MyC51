@@ -3,6 +3,7 @@
 
 void main(){
 	uint pos, old_pos = 40;
+	P1 = 0x00;
 	publisherInit();
 	while(1) {
 		if (T0 == 0){
